@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso Avanzado de QGIS</title>
+    <!-- Leaflet.js para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	 <!-- Chart.js para el gráfico -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Estilo general -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(#ffffff , #d3d3d3, #ffffff );
+            color: #000000;
+        }
+        header {
+            background: #1d3557;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .header-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        section {
+            padding: 20px;
+            margin: 10px;
+            background: rgba(245, 245, 245, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+        }
+        .map {
+            height: 500px;
+            margin: 0 auto;
+            border-radius: 8px;
+            width: 80%;
+        }
+        .calendar {
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        .tutor {
+            display: flex;
+            align-items: center;
+        }
+        .tutor img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+        }
+        .whatsapp {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            background: #25d366;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        .whatsapp img {
+            width: 50px;
+            height: 50px;
+        }
+		.carousel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            overflow: hidden;
+            width: 80%;
+            height: 200px;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .carousel img {
+            width: 100%;
+            height: auto;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .carousel img.active {
+            opacity: 1;
+        }
+		.social-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .social-icons a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #3b5998;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            font-size: 24px;
+        }
+        .social-icons a.instagram {
+            background-color: #E4405F;
+        }
+        .social-icons a.youtube {
+            background-color: #FF0000;
+        }
+    </style>
+</head>
+
+<body>
+    <header style="text-align: left;">
+        <h1>Curso Avanzado de QGIS</h1>
+        <img src="imagenes/imagen1.png" alt="Header Image" class="header-image">
+    </header>
+
+    <section>
+        <h2>Resumen</h2>
+        <p>Este curso avanzado de QGIS aborda las herramientas y técnicas esenciales para la gestión, análisis y visualización de datos geoespaciales. A lo largo de las unidades, aprenderás desde la gestión de bases de datos espaciales con GeoPackage, PostGIS y Geodatabases, hasta la creación de tableros de control interactivos. Se incluyen temas como edición avanzada, análisis topológico, automatización con PyQGIS, tratamiento de nubes de puntos LiDAR y diseño de mapas avanzados, integrando capacidades de visualización profesional y análisis en tiempo real. El enfoque práctico y aplicado permitirá dominar herramientas clave para proyectos complejos y colaborativos.
+</p>
+    </section>
+
+    <section>
+        <h2>¿De Donde son nuestros Estudiantes?</h2>
+        <div id="map" class="map"></div>
+    </section>
+
+    <section>
+        <h2>Calendario</h2>
+		<p><strong>18/02/2025 - 13/03/2025</strong></p>
+		<p>Lunes - Martes - Miercoles de 8:00 PM - 10:00 PM HORA COLOMBIA</p>
+        <div id="calendar" class="calendar"></div>
+    </section>
+
+    <section class="tutor">
+        <img src="imagenes/imagen2.jpg" alt="Foto del Tutor">
+        <div>
+            <h2>Tutor</h2>
+            <p><strong>Carlos Alberto Tavera Sanabria</strong></p>
+            <p>Soy especialista en Sistemas de Información Geográfica (SIG) y sensoramiento Remoto con Amplia experiencia en cartografía base y temática, manejo y análisis de imágenes satelitales, así como en el desarrollo de soluciones geoespaciales utilizando Python y JavaScript. Me especializo en la gestión de bases de datos espaciales, la creación de geoportales interactivos y aplicaciones web enfocadas en análisis y visualización geográfica. Además, tengo conocimientos en instrumentos de planificación territorial como POT, EIA y POMCA, lo que me permite aportar soluciones integrales en proyectos ambientales y de ordenamiento territorial.
+			</p>
+        </div>
+    </section>
+	
+	<section>
+		<h2>Síguenos en Redes Sociales</h2>
+		<div class="social-icons">
+			<a href="https://www.facebook.com/ingenioconsultoriacol" target="_blank" title="Facebook">
+				<i class="fab fa-facebook-f"></i>
+			</a>
+			<a href="https://www.instagram.com/ingenioconsultoria/" target="_blank" title="Instagram" class="instagram">
+				<i class="fab fa-instagram"></i>
+			</a>
+			<a href="https://www.youtube.com/@ingenioconsultoria52" target="_blank" title="YouTube" class="youtube">
+				<i class="fab fa-youtube"></i>
+			</a>
+		</div>
+	</section>
+	
+
+    <section>
+        <h2>Unidades del Curso</h2>
+        <h3>Unidad 1: Bases de Datos Espaciales en QGIS</h3>
+        <p> En esta unidad exploraremos las herramientas y conceptos clave para trabajar con bases de datos espaciales en QGIS, centrándonos en los formatos más utilizados: GeoPackage, PostGIS y Geodatabases (filegdb). Aprenderemos a gestionar datos espaciales de manera eficiente, desde su exportación e importación hasta su edición avanzada, aprovechando las capacidades de cada tecnología. También veremos cómo integrar bases de datos espaciales con QGIS para proyectos colaborativos o con grandes volúmenes de información. Esta base será fundamental para abordar análisis avanzados en las siguientes unidades.
+			</p>
+		
+		<ul>
+            <li>Introducción a Bases de Datos Espaciales</li>
+            <li>Gestión de GeoPackage en QGIS</li>
+			<li>Exportación, importación y edición. </li>
+            <li>PostGIS: Instalación, configuración y consultas avanzadas</li>
+            <li>Geodatabases (filegdb): Uso y edición en QGIS</li>
+        </ul>
+
+        <h3>Unidad 2: Edición Avanzada y Geoestadística</h3>
+        <p>En esta unidad, profundizaremos en las herramientas avanzadas de edición y análisis disponibles en QGIS. Exploraremos cómo crear, modificar y personalizar elementos. También aprenderemos a automatizar procesos mediante la creación de formularios personalizados con QT Designer, vinculándolos a capas para mejorar la interacción con los datos.
+		Finalmente, integraremos expresiones avanzadas y dominios para optimizar la gestión y visualización de datos vectoriales, consolidando habilidades clave para trabajar de forma eficiente en proyectos geoespaciales complejos.
+		</p>
+		<ul>
+            <li>Herramientas avanzadas para digitalización y edición de geometrías</li>
+            <li>Creación de formularios personalizados con QT Designer</li>
+			<li>Gestión de Imágenes Asociadas a Objetos Geográficos</li>
+			<li>Dominios en QGIS</li>
+			<li>Funciones de Agregación y Relleno de Campos</li>
+			<li>Configuración avanzada de capas vectoriales.</li>
+            <li>Geoestadística en QGIS</li>
+        </ul>
+
+        <h3>Unidad 3: Topología</h3>
+        <p>En esta unidad aprenderemos a utilizar la topología en QGIS para garantizar la calidad y coherencia de los datos espaciales. Exploraremos el comprobador de topología para identificar y corregir errores como superposiciones, huecos y duplicados, aplicaremos reglas topológicas específicas, y usaremos herramientas como snapping, autoensamblado y nodos para una edición precisa. Finalmente, veremos cómo corregir errores y validar cambios para cumplir con estándares avanzados de análisis geoespacial.</p>
+		<ul>
+            <li>Comprobador de Topología en QGIS: Identifica y analiza errores topológicos en los datos espaciales.</li>
+            <li>Herramienta de Nodos: Permite mover y ajustar vértices de las geometrías.</li>
+            <li>Creación de Topología: Configura relaciones espaciales entre las geometrías de las capas.</li>
+			<li>Reglas Topológicas: Define restricciones como "sin superposiciones" o "deben estar contenidas".</li>
+            <li>Errores Topológicos: Problemas como huecos, intersecciones o duplicados en las geometrías.</li>
+            <li>Validación de la Topología: Comprueba que los datos cumplen con las reglas definidas.</li>
+			<li>Autoensamblado y Snapping: Facilita la edición precisa ajustando geometrías automáticamente.</li>
+            <li>Corrección de Errores Topológicos: Soluciona inconsistencias para garantizar datos coherentes.</li>
+           
+        </ul>
+
+        <h3>Unidad 4: Automatización con PyQGIS</h3>
+        <p>En esta unidad aprenderemos a usar PyQGIS para automatizar tareas y optimizar flujos de trabajo en QGIS. Exploraremos la consola de Python para manipular datos espaciales, añadir capas, acceder a atributos y ejecutar geoprocesos desde scripts. Además, desarrollaremos scripts personalizados para automatizar procesos como la carga de datos, aplicación de estilos y generación de análisis espaciales, mejorando la productividad y permitiendo la personalización de proyectos geoespaciales.</p>
+		
+		<ul>
+            <li>Introducción a PyQGIS</li>
+            <li>Automatización de flujos de trabajo con scripts en Python</li>
+            <li>Manipulación y análisis de datos espaciales desde la consola de Python</li>
+        </ul>
+
+        <h3>Unidad 5: Modelador de Geoprocesamiento</h3>
+        <p>En esta unidad, nos centraremos en el uso del Modelador de Geoprocesamiento de QGIS, una herramienta que permite crear flujos de trabajo automatizados y personalizados para realizar análisis espaciales complejos. Aprenderemos a configurar entradas, algoritmos y variables para diseñar modelos que integren múltiples procesos de forma secuencial y eficiente.
+		Además, exploraremos cómo realizar geoprocesamiento por lotes, ideal para aplicar procesos repetitivos a múltiples capas o conjuntos de datos. Este enfoque ahorra tiempo y reduce errores al automatizar tareas como reproyecciones, conversiones y análisis espaciales.
+		</p>
+		<ul>
+            <li>Creación de flujos de trabajo automatizados</li>
+            <li>Geoprocesamiento por lotes</li>
+            <li>Definición y ejecución de modelos personalizados</li>
+        </ul>
+
+        <h3>Unidad 6: Tratamiento de Nubes de Puntos LiDAR</h3>
+        <p>En esta unidad aprenderemos a trabajar con nubes de puntos LiDAR dentro de QGIS, explorando cómo procesar, analizar y visualizar datos en formato LAS y COPC. Veremos cómo descargar, filtrar y clasificar nubes de puntos para extraer información clave, como modelos digitales del terreno (MDT), perfiles de elevación y modelos 3D.
+
+		Utilizaremos herramientas como PDAL, LastTools para el procesamiento avanzado de datos, incluyendo la asignación de proyecciones, filtrado y generación de triangulaciones. También abordaremos técnicas para crear productos derivados, como sombras colinas (hillshade), contornos y análisis de visibilidad.
+
+		Finalmente, exploraremos la visualización 3D de las nubes de puntos, con mejoras gráficas para análisis más detallados, consolidando habilidades clave para trabajar con este tipo de datos en proyectos geoespaciales avanzados.
+		</p>
+		<ul>
+            <li>Descarga y procesamiento de datos LiDAR</li>
+            <li>Generación de MDT, MDE y visualización 3D</li>
+            <li>Análisis avanzado y productos derivados</li>
+        </ul>
+
+        <h3>Unidad 7: Composición Avanzada de Mapas</h3>
+        <p>En esta unidad aprenderemos a crear mapas avanzados en QGIS, integrando técnicas de visualización y diseño profesional para proyectos complejos. Exploraremos la representación de grandes volúmenes de datos mediante simbología avanzada, como clústeres de puntos y el uso de variables dinámicas para color y tamaño.
+
+		También trabajaremos con expresiones para mejorar la simbología y el etiquetado, y aprenderemos a incorporar gráficos e histogramas para enriquecer la presentación de los datos. Finalmente, nos enfocaremos en la creación de diseños dinámicos de impresión, incluyendo series de mapas automatizadas (Atlas), optimizando la producción de mapas para múltiples áreas de interés.
+		</p>
+		<ul>
+            <li>Simbología avanzada y etiquetado dinámico</li>
+            <li>Creación de gráficos e incorporación en mapas</li>
+            <li>Diseños de impresión dinámicos con Atlas</li>
+        </ul>
+
+        <h3>Unidad 8: Tableros de Control</h3>
+        <p>En esta unidad aprenderemos a crear tableros de control geoespaciales en QGIS, herramientas interactivas y dinámicas que permiten analizar y visualizar datos en tiempo real. Nos enfocaremos en el uso de complementos como DataPlotly para generar gráficos interactivos directamente vinculados con las capas del proyecto, y exploraremos cómo combinar estadísticas, mapas y visualizaciones en un único panel.
+
+			También abordaremos la configuración de filtros, elementos dinámicos y herramientas de personalización para adaptar los tableros a distintos tipos de análisis. Al finalizar, tendrás los conocimientos necesarios para diseñar tableros efectivos que integren mapas, gráficos y datos, facilitando la toma de decisiones en proyectos geoespaciales.
+		</p>
+		
+		<ul>
+            <li>Creación de tableros interactivos con complementos</li>
+            <li>Integración de mapas, gráficos y estadísticas</li>
+            <li>Configuración de filtros y elementos dinámicos</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Metodología</h2>
+        <p>El curso avanzado de QGIS ha sido diseñado para garantizar un aprendizaje integral y práctico de las herramientas geoespaciales mediante una metodología virtual y dinámica. Todas las clases se llevarán a cabo a través de la plataforma Zoom, permitiendo una interacción en tiempo real entre los participantes y el tutor. Durante las sesiones, se realizarán demostraciones prácticas, se resolverán dudas en vivo y se fomentará la participación activa de los estudiantes.
+		Adicionalmente, los estudiantes tendrán acceso exclusivo a todos los videos de las sesiones grabadas, lo que les permitirá repasar los conceptos y ejercicios en cualquier momento. Junto con esto, se entregará todo el material complementario del curso, incluyendo presentaciones, guías prácticas, datasets de ejemplo y documentación adicional, para que los participantes puedan consolidar su aprendizaje de manera autónoma.
+		Esta metodología busca combinar flexibilidad, accesibilidad y calidad, proporcionando a los estudiantes las herramientas necesarias para dominar QGIS y aplicarlo en proyectos geoespaciales complejos y colaborativos.
+		</p>
+		
+    </section>
+	
+	
+	<section>
+    <h2>Inscríbete al Curso</h2>
+    <p>Llena el formulario a continuación para registrarte en el curso:</p>
+    <iframe 
+        src="https://docs.google.com/forms/d/e/1FAIpQLSejb9G3TYqZszpgk6s2LIKkAdhNxBP_qpgiEdwRsD9Blx34MA/viewform?usp=header" 
+        width="100%" 
+        height="600" 
+        frameborder="0" 
+        marginheight="0" 
+        marginwidth="0">Cargando…</iframe>
+	</section>
+	
+	<section>
+        <h2>Escribenos</h2>
+        <p> Puedes escribirnos a través del correo electronico <strong> ingenioconsultoria.cyt@gmail.com </strong> o Haz click en el Icono de Whats App 
+		</p>
+		
+    </section>
+	
+	
+	<section>
+        <h2>¡¡¡Gracias por preferirnos!!!</h2>
+        <canvas id="satisfactionChart" width="10" height="10"></canvas>
+    </section>
+
+    <div class="whatsapp">
+        <a href="https://wa.me/+573168714348" target="_blank">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+        </a>
+	
+    </div>
+	
+		<div class="carousel">
+        <img src="imagenes/imagen3.jpg" alt="Imagen 3" class="active">
+        <img src="imagenes/imagen4.jpg" alt="Imagen 4">
+        <img src="imagenes/imagen5.jpg" alt="Imagen 5">
+        <img src="imagenes/imagen6.jpg" alt="Imagen 6">
+        <img src="imagenes/imagen7.png" alt="Imagen 7">
+    </div>
+
+
+    <!-- Script para el mapa -->
+    <script>
+        var map = L.map('map').setView([7.119349, -73.122742], 3);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Agregar marcadores para los países especificados
+        var locations = [
+            { name: "México", coords: [23.634501, -102.552784] },
+            { name: "Guatemala", coords: [15.783471, -90.230759] },
+            { name: "Colombia", coords: [4.570868, -74.297333] },
+            { name: "Argentina", coords: [-38.416097, -63.616672] },
+            { name: "Perú", coords: [-9.189967, -75.015152] },
+            { name: "Chile", coords: [-35.675147, -71.542969] },
+            { name: "República Dominicana", coords: [18.735693, -70.162651] },
+            { name: "Bolivia", coords: [-16.290154, -63.588653] },
+            { name: "Uruguay", coords: [-32.522779, -55.765835] }
+        ];
+
+        locations.forEach(function(location) {
+            L.marker(location.coords).addTo(map)
+                .bindPopup(location.name);
+        });
+    </script>
+	
+	<script>
+    // Selección de imágenes del carrusel
+    var images = document.querySelectorAll('.carousel img');
+    var currentIndex = 0;
+
+    function updateCarousel() {
+        // Quitar la clase 'active' de todas las imágenes
+        images.forEach((img, index) => {
+            img.classList.remove('active');
+            img.style.zIndex = index === currentIndex ? 1 : 0; // Ajuste del índice z
+        });
+
+        // Asignar la clase 'active' a la imagen actual
+        images[currentIndex].classList.add('active');
+
+        // Incrementar el índice para mostrar la siguiente imagen
+        currentIndex = (currentIndex + 1) % images.length;
+    }
+
+    // Iniciar el carrusel con un intervalo de 3 segundos
+    setInterval(updateCarousel, 3000);
+    updateCarousel(); // Llamada inicial para mostrar la primera imagen
+</script>
+
+ 
+</body>
+</html>
